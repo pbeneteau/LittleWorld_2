@@ -96,7 +96,6 @@ class MainUser {
         usersRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
             let json = JSON(snapshot.value!)
             self.name = json["Name"].stringValue
-            self.facebookID = json["FacebookID"].stringValue
         })
     }
     
