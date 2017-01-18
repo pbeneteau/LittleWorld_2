@@ -71,6 +71,9 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     @IBAction func disconnectAction(_ sender: Any) {
         try!FIRAuth.auth()?.signOut() // Logout
+        FBSDKAccessToken.setCurrent(nil)
+        FBSDKProfile.setCurrent(nil)
+        
         transitionSegue.segue.switchToLoginview()
         print("user did logout")
     }
