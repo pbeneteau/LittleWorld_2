@@ -34,6 +34,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>PermissionScope.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-LittleWorld.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -62,12 +67,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>155AEAC7FCD0A7696081531B2ED5A723</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>44CAD6CE523055ED339E87154473A254</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7B1F0E7161120BFF2EAC663AC762D284</key>
+		<key>5A55389A98DD6E45E4BEE0B1145F95C4</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -78,11 +88,6 @@
 			<true/>
 		</dict>
 		<key>9889562781163BF5CB84E06A985BCE44</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>A9102B3E6D4F85B3765F0C4D2BA81FF9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -103,6 +108,11 @@
 			<true/>
 		</dict>
 		<key>C052BEBFBD0AB5218CC64BA3450F6547</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D973DBB3FF803A3BAC3F870E70F87628</key>
 		<dict>
 			<key>primary</key>
 			<true/>
