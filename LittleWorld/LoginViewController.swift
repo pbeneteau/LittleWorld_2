@@ -16,6 +16,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     var ref = FIRDatabase.database().reference() // Database reference
     var user = FIRAuth.auth()?.currentUser
     
+    let isFirstLaunch = UserDefaults.isFirstLaunch()
+    
     @IBOutlet weak var loginAlert: UILabel!
     @IBOutlet weak var facebookButtonView: FBSDKLoginButton! // Facebook login button
     
@@ -50,19 +52,24 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 if error != nil {
                     print(error!.localizedDescription)
                     return
-                } else {
+                } else if error == nil {
+                    print("user logged with facebook")
+                    self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
+                    if self.isFirstLaunch {
+                        transitionSegue.segue.switchToNavigationController()
+                    } else {
+                        transitionSegue.segue.switchToWalkThrough()
+                    }
                     self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
                 }
+                
             })
             
             print("user logged with facebook -> WalkThrough")
             
             loginAlert.text = "Successfuly logged in!"
             
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC) * 2) / Double(NSEC_PER_SEC), execute: { () -> Void in
-                
-                transitionSegue.segue.switchToWalkThrough() // Segue
-            })
+            
         }
     }
     
@@ -77,3 +84,17 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         dismiss(animated: true, completion: nil) // Close current login view Controller
     }
 }
+
+extension UserDefaults {
+    // check for is first launch - only true on first invocation after app install, false on all further invocations
+    static func isFirstLaunch() -> Bool {
+        let firstLaunchFlag = "FirstLaunchFlag"
+        let isFirstLaunch = UserDefaults.standard.string(forKey: firstLaunchFlag) == nil
+        if (isFirstLaunch) {
+            UserDefaults.standard.set("false", forKey: firstLaunchFlag)
+            UserDefaults.standard.synchronize()
+        }
+        return isFirstLaunch
+    }
+}
+
