@@ -19,15 +19,24 @@ class ProfileVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var user = FIRAuth.auth()?.currentUser
     
-    var mainUser: MainUser!
+    var mainUser = MainUser()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
         if (FIRAuth.auth()?.currentUser) != nil {
-            mainUser = MainUser()
+            initUserInformations()
+            print(mainUser.getName())
+            mainUser.loadFriendList()
         }
-        
+    }
+    
+    
+    func initUserInformations() {
+        profileName.text = "Name: \(mainUser.getName())"
     }
     
     

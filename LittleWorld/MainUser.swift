@@ -11,6 +11,8 @@ import Firebase
 import SwiftyJSON
 import CoreLocation
 import MapKit
+import FBSDKLoginKit
+import FBSDKCoreKit
 
 
 class MainUser {
@@ -18,6 +20,7 @@ class MainUser {
     private let firebaseRef = FIRDatabase.database().reference()
     private var user = FIRAuth.auth()?.currentUser
     private var uid: String = ""
+    private var facebookID: String!
     private var name: String!
     private var city: String!
     private var postalCode: String!
@@ -87,10 +90,37 @@ class MainUser {
         print("user did logout")
     }
     
+    func loadInformations() {
+        let usersRef = self.firebaseRef.child("Users/\(uid)")
+        
+        usersRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
+            let json = JSON(snapshot.value!)
+            self.name = json["Name"].stringValue
+            self.facebookID = json["FacebookID"].stringValue
+        })
+    }
     
-    // Get 
+    func loadFriendList() {
+        FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5000", parameters: ["fields": "id, first_name, last_name, picture "]).start(completionHandler: { (connection, result, error) -> Void in
+            
+            if error == nil
+            {
+                let json = JSON(result!)
+                print(json)
+            }
+            else
+            {
+                print("Error Getting Friends \(error!)")
+            }
+        })
+    }
+    
+    // Get
     func getUid() -> String {
         return self.uid
+    }
+    func getFacebookID() -> String {
+        return facebookID
     }
     func getName() -> String {
         return self.name
@@ -116,7 +146,7 @@ class MainUser {
     func getLong() -> CLLocationDegrees{
         return location.coordinate.longitude
     }
-    
+
     init() {
         uid = user!.uid
         location = CLLocation(latitude: 0.0, longitude: 0.0)

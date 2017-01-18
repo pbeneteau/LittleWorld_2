@@ -50,14 +50,14 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 if error != nil {
                     print(error!.localizedDescription)
                     return
+                } else {
+                    self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
                 }
-                self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
             })
             
             print("user logged with facebook -> WalkThrough")
             
             loginAlert.text = "Successfuly logged in!"
-            
             
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC) * 2) / Double(NSEC_PER_SEC), execute: { () -> Void in
                 

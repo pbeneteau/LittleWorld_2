@@ -12,9 +12,10 @@ import Firebase
 import CoreLocation
 import SwiftyJSON
 import PermissionScope
+import FBSDKCoreKit
+import FBSDKLoginKit
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
-    
     
     var ref = FIRDatabase.database().reference()
     var user = FIRAuth.auth()?.currentUser
@@ -46,9 +47,11 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         mainUser = MainUser()
         
+        mainUser.loadInformations()
+        
         mainUser.checkConnectionState()
         
-        var r = Location.getLocation(withAccuracy: .house, frequency: .continuous, timeout: nil, onSuccess: { (location) in
+        var r = Location.getLocation(withAccuracy: .block, frequency: .continuous, timeout: nil, onSuccess: { (location) in
             
             self.updateUserLocation(location: location)
             self.updateNearbyUsers()
@@ -59,8 +62,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         r.onAuthorizationDidChange = { newStatus in
             print("New status \(newStatus)")
         }
-        
-        
     }
     
     override func didReceiveMemoryWarning() {
