@@ -27,6 +27,7 @@ class MainUser {
     private var countryCode: String!
     private var status: Bool!
     private var location: CLLocation!
+    private var friendList = [String:User]()
     
     
     // Location
@@ -83,12 +84,7 @@ class MainUser {
             lastOnlineRef.onDisconnectSetValue(FIRServerValue.timestamp())
         })
     }
-    func disconnect() {
-        
-        try!FIRAuth.auth()?.signOut() // Logout
-        transitionSegue.segue.switchToLoginview()
-        print("user did logout")
-    }
+
     
     func loadInformations() {
         let usersRef = self.firebaseRef.child("Users/\(uid)")
@@ -100,12 +96,12 @@ class MainUser {
     }
     
     func loadFriendList() {
-        FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5000", parameters: ["fields": "id, first_name, last_name, picture "]).start(completionHandler: { (connection, result, error) -> Void in
+        FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=10000", parameters: ["fields": "id, first_name, last_name, picture "]).start(completionHandler: { (connection, result, error) -> Void in
             
             if error == nil
             {
                 let json = JSON(result!)
-                print(json)
+                
             }
             else
             {

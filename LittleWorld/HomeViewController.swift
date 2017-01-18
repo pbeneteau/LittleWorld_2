@@ -70,7 +70,9 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @IBAction func disconnectAction(_ sender: Any) {
-        mainUser.disconnect()
+        try!FIRAuth.auth()?.signOut() // Logout
+        transitionSegue.segue.switchToLoginview()
+        print("user did logout")
     }
     
     

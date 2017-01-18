@@ -45,7 +45,6 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             print("user canceled sign up")
             loginAlert.text = "Canceled"
         } else {
-            
             let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
             
             FIRAuth.auth()?.signIn(with: credential, completion: { (user, error) in // Sign in
@@ -55,7 +54,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 } else if error == nil {
                     print("user logged with facebook")
                     self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
-                    if self.isFirstLaunch {
+                    if !self.isFirstLaunch {
                         transitionSegue.segue.switchToNavigationController()
                     } else {
                         transitionSegue.segue.switchToWalkThrough()
@@ -76,7 +75,6 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     public func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!)
     {
         try!FIRAuth.auth()?.signOut() // Logout
-        
         print("user did logout of facebook")
     }
     
@@ -85,16 +83,5 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
 }
 
-extension UserDefaults {
-    // check for is first launch - only true on first invocation after app install, false on all further invocations
-    static func isFirstLaunch() -> Bool {
-        let firstLaunchFlag = "FirstLaunchFlag"
-        let isFirstLaunch = UserDefaults.standard.string(forKey: firstLaunchFlag) == nil
-        if (isFirstLaunch) {
-            UserDefaults.standard.set("false", forKey: firstLaunchFlag)
-            UserDefaults.standard.synchronize()
-        }
-        return isFirstLaunch
-    }
-}
+
 
