@@ -50,6 +50,7 @@ func checkLocationPermission() -> Bool {
 
 func convertUserDictionaryToTable(dictionary: [String:User]) -> [UserTable] {
     var table = [UserTable]()
+    table.removeAll()
     for (uid,user) in dictionary {
         var userTable = UserTable()
         userTable.uid = uid

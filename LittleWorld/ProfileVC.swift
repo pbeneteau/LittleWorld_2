@@ -23,14 +23,15 @@ class ProfileVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         if (FIRAuth.auth()?.currentUser) != nil {
             initUserInformations()
-            print(mainUser.getName())
             mainUser.loadFriendList()
+            friendNumber.text = "Friend number: \(mainUser.getFriendList().count)"
+            print(mainUser.compareFriendsLists(friendsList1: mainUser.getFriendList(), friendList2: mainUser.getFriendList()).count)
+
         }
     }
     

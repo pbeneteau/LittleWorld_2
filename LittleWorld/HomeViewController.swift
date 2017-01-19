@@ -23,7 +23,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var mainUser: MainUser!
     var users = Users()
     
-    var inCircleUsers = [String:User]()
     var inCircleUsersTable = [UserTable]()
     
     let pscope = PermissionScope()
@@ -50,11 +49,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         mainUser.loadInformations()
         
         mainUser.checkConnectionState()
+    
         
         var r = Location.getLocation(withAccuracy: .block, frequency: .continuous, timeout: nil, onSuccess: { (location) in
             
-            self.updateUserLocation(location: location)
-            self.updateNearbyUsers()
+            if (FBSDKAccessToken.current() != nil) {
+                self.updateUserLocation(location: location)
+            }
             
         }) { (last, err) in
             print("err \(err)")
@@ -62,6 +63,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         r.onAuthorizationDidChange = { newStatus in
             print("New status \(newStatus)")
         }
+        
+        var _ = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(updateNearbyUsers), userInfo: nil, repeats: true)
     }
     
     override func didReceiveMemoryWarning() {
@@ -120,10 +123,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func updateNearbyUsers() {
         // Get nearby users every 10s
-        self.users.loadUsers()
-        self.users.loadInCircleUsersList(location: self.mainUser.getLocation(), _uid: self.mainUser.getUid(), circle: 100)
-        self.inCircleUsers = self.users.getInCircleUsersList()
-        self.inCircleUsersTable = convertUserDictionaryToTable(dictionary: self.inCircleUsers)
+        self.users.loadNearbyUsers(location: mainUser.getLocation(), circle: 100, uid: mainUser.getUid())
+        inCircleUsersTable = convertUserDictionaryToTable(dictionary: self.users.getInCircleUsersList())
         self.nearUsersTableView.reloadData()
     }
     

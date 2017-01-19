@@ -27,7 +27,7 @@ class MainUser {
     private var countryCode: String!
     private var status: Bool!
     private var location: CLLocation!
-    private var friendList = [String:User]()
+    private var friendList = [String:String]()
     
     
     // Location
@@ -96,26 +96,56 @@ class MainUser {
     }
     
     func loadFriendList() {
-        FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=10000", parameters: ["fields": "id, first_name, last_name, picture "]).start(completionHandler: { (connection, result, error) -> Void in
+        FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=10000", parameters: ["fields": "name,picture"]).start(completionHandler: { (connection, result, error) -> Void in
             
             if error == nil
             {
-                let json = JSON(result!)
+                let array = (result as! NSDictionary).object(forKey: "data") as! NSArray
+                for i in 0  ..< array.count {
+                    let dict : NSDictionary = array.object(at: i) as! NSDictionary
+                    let photo : NSDictionary = dict.object(forKey: "picture") as! NSDictionary
+                    let photoData : NSDictionary = photo.object(forKey: "data") as! NSDictionary
+                    
+                    let picture : String = photoData.object(forKey: "url") as! String
+                    let name: String = dict.object(forKey: "name") as! String
+                    
+                    self.friendList[picture] = name
+                }
+                self.uploadFriendsToFirebase()
                 
             }
             else
             {
-                print("Error Getting Friends \(error!)")
+                print("Error Getting Friends \(error)")
             }
         })
+    }
+    
+    func uploadFriendsToFirebase() {
+        for friend in self.friendList {
+            if friend.key != "" {
+                //print("[\(friend.key),\(friend.value)]")
+                //self.firebaseRef.child("Users/\(self.uid)/FriendList").child(friend.value).setValue(friend.key)
+            }
+        }
+        print("\nFriends added and uploaded !\n")
+    }
+    
+    func compareFriendsLists(friendsList1: [String:String], friendList2: [String:String]) -> [String:String] {
+        var mutualFriends = [String:String]()
+        for friend1 in friendsList1 {
+            for friend2 in friendList2 {
+                if friend1.key == friend2.key {
+                    mutualFriends[friend1.key] = friend1.value
+                }
+            }
+        }
+        return mutualFriends
     }
     
     // Get
     func getUid() -> String {
         return self.uid
-    }
-    func getFacebookID() -> String {
-        return facebookID
     }
     func getName() -> String {
         return self.name
@@ -140,6 +170,9 @@ class MainUser {
     }
     func getLong() -> CLLocationDegrees{
         return location.coordinate.longitude
+    }
+    func getFriendList() -> [String:String] {
+        return friendList
     }
 
     init() {

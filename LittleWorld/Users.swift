@@ -41,7 +41,7 @@ class Users {
     private var onlineUsersList = [String:User]()
     private var inCircleUsersList = [String:User]()
     
-    func loadUsers() {
+    func loadNearbyUsers(location: CLLocation, circle: Double, uid: String) {
         let usersRef = self.firebaseRef.child("Users")
         
         usersRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
@@ -56,7 +56,8 @@ class Users {
                 user.name = informations["Name"].stringValue
                 
                 self.usersList[uid] = user
-                if user.status {
+                
+                if (user.status) {
                     self.onlineUsersList[uid] = user
                 } else {
                     self.onlineUsersList.removeValue(forKey: uid)
@@ -64,19 +65,22 @@ class Users {
                 
             }
         })
-    }
-    
-    func loadInCircleUsersList(location: CLLocation, _uid: String, circle: Double) {
-        for (uid,user) in onlineUsersList {
-            let location2 = CLLocation(latitude: user.lat, longitude: user.long)
-            
-            if (distanceBetweenTwoLocations(source: location, destination: location2) < circle && uid != _uid) {
-                self.inCircleUsersList[uid] = user
-            } else {
-                self.inCircleUsersList.removeValue(forKey: uid)
+        
+        inCircleUsersList.removeAll()
+        for (_uid,user) in onlineUsersList {
+            if _uid != uid {
+                let location2 = CLLocation(latitude: user.lat, longitude: user.long)
+                if distanceBetweenTwoLocations(source: location, destination: location2) < circle {
+                    self.inCircleUsersList[uid] = user
+                }
             }
         }
+//        print("Total users count: \(self.usersList.count)")
+//        print("Online users count: \(self.onlineUsersList.count)")
+//        print("Online in Circle users count: \(self.inCircleUsersList.count)")
     }
+
+    
     
     func getUsersList() -> [String:User] {
         return usersList
