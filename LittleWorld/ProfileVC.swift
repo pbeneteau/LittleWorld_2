@@ -30,7 +30,7 @@ class ProfileVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             initUserInformations()
             mainUser.loadFriendList()
             friendNumber.text = "Friend number: \(mainUser.getFriendList().count)"
-            print(mainUser.compareFriendsLists(friendsList1: mainUser.getFriendList(), friendList2: mainUser.getFriendList()).count)
+            //print(mainUser.compareFriendsLists(friendsList1: mainUser.getFriendList(), friendList2: mainUser.getFriendList()).count)
 
         }
     }
