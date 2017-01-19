@@ -21,9 +21,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var user = FIRAuth.auth()?.currentUser
     
     var mainUser: MainUser!
-    var users = Users()
     
-    var inCircleUsersTable = [UserTable]()
+    var users = Users()
     
     let pscope = PermissionScope()
     
@@ -50,21 +49,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         mainUser.checkConnectionState()
     
+        mainUser.loadFriendList()
         
-        var r = Location.getLocation(withAccuracy: .block, frequency: .continuous, timeout: nil, onSuccess: { (location) in
-            
-            if (FBSDKAccessToken.current() != nil) {
-                self.updateUserLocation(location: location)
-            }
-            
-        }) { (last, err) in
-            print("err \(err)")
-        }
-        r.onAuthorizationDidChange = { newStatus in
-            print("New status \(newStatus)")
-        }
+        initLocation()
         
-        var _ = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(updateNearbyUsers), userInfo: nil, repeats: true)
     }
     
     override func didReceiveMemoryWarning() {
@@ -93,13 +81,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.inCircleUsersTable.count
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: UITableViewCell = self.nearUsersTableView.dequeueReusableCell(withIdentifier: "cell")! as UITableViewCell
         
-        (cell.viewWithTag(4) as! UILabel).text = (self.inCircleUsersTable[indexPath.row].user as User).name
+        // (cell.viewWithTag(4) as! UILabel).text = (self.inCircleUsersTable[indexPath.row].user as User).name
         
         return cell
     }
@@ -123,9 +111,24 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func updateNearbyUsers() {
         // Get nearby users every 10s
-        self.users.loadNearbyUsers(location: mainUser.getLocation(), circle: 100, uid: mainUser.getUid())
-        inCircleUsersTable = convertUserDictionaryToTable(dictionary: self.users.getInCircleUsersList())
-        self.nearUsersTableView.reloadData()
+    }
+    
+    func initLocation() -> Void {
+        
+        var r = Location.getLocation(withAccuracy: .block, frequency: .continuous, timeout: nil, onSuccess: { (location) in
+            
+            if (FBSDKAccessToken.current() != nil) {
+                self.updateUserLocation(location: location)
+            }
+            
+        }) { (last, err) in
+            print("err \(err)")
+        }
+        r.onAuthorizationDidChange = { newStatus in
+            print("New status \(newStatus)")
+        }
+        
+        var _ = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(updateNearbyUsers), userInfo: nil, repeats: true)
     }
     
 }

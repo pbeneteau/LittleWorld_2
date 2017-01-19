@@ -96,7 +96,7 @@ class MainUser {
     }
     
     func loadFriendList() {
-        FBSDKGraphRequest(graphPath:"/me/friends?limit=10000", parameters: ["fields": "id,name"]).start(completionHandler: { (connection, result, error) -> Void in
+        FBSDKGraphRequest(graphPath:"/me/friends?limit=5000", parameters: ["fields": "id,name"]).start(completionHandler: { (connection, result, error) -> Void in
             
             if error == nil
             {
@@ -108,7 +108,7 @@ class MainUser {
                     self.friendList[id] = name
                 }
                 self.uploadFriendsToFirebase()
-                
+                print(self.friendList)
             }
             else
             {
