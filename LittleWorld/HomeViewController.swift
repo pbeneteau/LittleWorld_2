@@ -61,7 +61,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @IBAction func disconnectAction(_ sender: Any) {
-        ref.child("Users").child(user!.uid).child("Connections").child("Connected").setValue("false")
+        ref.child("Users").child("Infos").child(user!.uid).child("Connections").child("Connected").setValue("false")
         try!FIRAuth.auth()?.signOut() // Logout
         FBSDKProfile.setCurrent(nil)
 

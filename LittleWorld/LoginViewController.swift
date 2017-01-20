@@ -17,7 +17,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     var user = FIRAuth.auth()?.currentUser
     
     let isFirstLaunch = UserDefaults.isFirstLaunch()
-    
+        
     @IBOutlet weak var loginAlert: UILabel!
     @IBOutlet weak var facebookButtonView: FBSDKLoginButton! // Facebook login button
     
@@ -37,6 +37,9 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // Facebook login
     public func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!)
     {
+        
+        
+        
         loginAlert.isHidden = false
         
         if error != nil {
@@ -47,22 +50,22 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             loginAlert.text = "Canceled"
         } else {
             let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-            
+            let userRef = ref.child("Users").child("Infos")
             FIRAuth.auth()?.signIn(with: credential, completion: { (user, error) in // Sign in
                 if error != nil {
                     print(error!.localizedDescription)
                     return
                 } else if error == nil {
                     print("user logged with facebook")
-                    self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
+                    
+                    userRef.child(user!.uid).child("Name").setValue(user?.displayName)
+                    
                     if !self.isFirstLaunch {
                         transitionSegue.segue.switchToNavigationController()
                     } else {
                         transitionSegue.segue.switchToWalkThrough()
                     }
-                    self.ref.child("Users").child(user!.uid).child("Name").setValue(user?.displayName)
                 }
-                
             })
             
             print("user logged with facebook -> WalkThrough")
@@ -82,6 +85,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     @IBAction func closeAction(_ sender: Any) {
         dismiss(animated: true, completion: nil) // Close current login view Controller
     }
+    
+    
 }
 
 

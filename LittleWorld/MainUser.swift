@@ -42,29 +42,25 @@ class MainUser {
             self.city = foundPlacemark.locality
             self.countryCode = foundPlacemark.isoCountryCode
             self.postalCode = foundPlacemark.postalCode
-            self.updateToFirebase()
         }) { error in
             print("Error: \(error)")
         }
     }
     
-    func updateToFirebase() {
-        firebaseRef.child("Users").child(uid).child("Location").child("Lat").setValue("\(location.coordinate.latitude)")
-        firebaseRef.child("Users").child(uid).child("Location").child("Long").setValue("\(location.coordinate.longitude)")
+    func updateToFirebaseInfos() {
         
-        firebaseRef.child("Users").child(uid).child("Location").child("City").setValue("\(city!)")
-        firebaseRef.child("Users").child(uid).child("Location").child("PostalCode").setValue("\(postalCode!)")
-        firebaseRef.child("Users").child(uid).child("Location").child("isoCountryCode").setValue("\(countryCode!)")
+        let userRef = firebaseRef.child("Users").child("Info").child(uid)
+
     }
     
     func checkConnectionState() {
         
         // since I can connect from multiple devices, we store each connection instance separately
         // any time that connectionsRef's value is null (i.e. has no children) I am offline
-        let myConnectionsRef = FIRDatabase.database().reference(withPath: "Users/\(uid)/Connections")
+        let myConnectionsRef = FIRDatabase.database().reference(withPath: "Users/Infos/\(uid)/Connections")
         
         // stores the timestamp of my last disconnect (the last time I was seen online)
-        let lastOnlineRef = FIRDatabase.database().reference(withPath: "Users/\(uid)/Connections/LastOnline")
+        let lastOnlineRef = FIRDatabase.database().reference(withPath: "Users/Infos/\(uid)/Connections/LastOnline")
         
         let connectedRef = FIRDatabase.database().reference(withPath: ".info/connected")
         
@@ -87,7 +83,7 @@ class MainUser {
 
     
     func loadInformations() {
-        let usersRef = self.firebaseRef.child("Users/\(uid)")
+        let usersRef = self.firebaseRef.child("Users/Infos/\(uid)")
         
         usersRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
             let json = JSON(snapshot.value!)
@@ -119,7 +115,7 @@ class MainUser {
 
     func uploadFriendsToFirebase() {
         for (id,name) in self.friendList {
-            self.firebaseRef.child("Users/\(self.uid)/FriendList").child(id).setValue(name)
+            self.firebaseRef.child("Users/Infos/\(self.uid)/FriendList").child(id).setValue(name)
         }
         print("\nFriends added and uploaded !\n")
     }
