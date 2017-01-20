@@ -36,7 +36,7 @@ struct UserTable {
 
 class Users {
     
-    
+
 }
 
 

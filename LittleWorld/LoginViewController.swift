@@ -37,26 +37,24 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // Facebook login
     public func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!)
     {
-        
-        
-        
+        print("\nUser Try to login\n")
         loginAlert.isHidden = false
         
         if error != nil {
             print(error.localizedDescription)
             return
         } else if (result.isCancelled){ // Canceled by user
-            print("user canceled sign up")
+            print("\nUser cancelled login\n")
             loginAlert.text = "Canceled"
         } else {
             let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
             let userRef = ref.child("Users").child("Infos")
             FIRAuth.auth()?.signIn(with: credential, completion: { (user, error) in // Sign in
                 if error != nil {
-                    print(error!.localizedDescription)
+                    print("\n\(error!.localizedDescription)\n")
                     return
                 } else if error == nil {
-                    print("user logged with facebook")
+                    print("\nUser logged in\n")
                     
                     userRef.child(user!.uid).child("Name").setValue(user?.displayName)
                     

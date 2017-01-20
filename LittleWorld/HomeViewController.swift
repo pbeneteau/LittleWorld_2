@@ -45,12 +45,19 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         mainUser = MainUser()
         
+        // Get user's name
         mainUser.loadInformations()
         
+        // Get user's FacebookID
+        mainUser.loadFacebookID()
+        
+        // Set connection state
         mainUser.checkConnectionState()
     
+        // Get user's friends list (Facebook)
         mainUser.loadFriendList()
         
+        // Start location update
         initLocation()
         
     }
@@ -61,14 +68,15 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @IBAction func disconnectAction(_ sender: Any) {
+        print("\nUser disconnected\n")
         ref.child("Users").child("Infos").child(user!.uid).child("Connections").child("Connected").setValue("false")
-        try!FIRAuth.auth()?.signOut() // Logout
+        mainUser.goOffline()
+        try!FIRAuth.auth()?.signOut()
         FBSDKProfile.setCurrent(nil)
 
         FBSDKAccessToken.setCurrent(nil)
 
         transitionSegue.segue.switchToLoginview()
-        print("user did logout")
     }
     
     
@@ -106,11 +114,14 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     func updateUserLocation(location: CLLocation) {
         // Get User's localization and informations
         self.mainUser.setLocation(location: location)
+        self.mainUser.goOnline()
         self.printLocationDetails()
     }
     
     func updateNearbyUsers() {
-        // Get nearby users every 10s
+        // Get nearby users every 4s
+        mainUser.loadInCircleUsers(circle: 20)
+        print(mainUser.getInCircleUsers())
     }
     
     func initLocation() -> Void {
