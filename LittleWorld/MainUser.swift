@@ -28,8 +28,9 @@ class MainUser {
     private var status: Bool!
     private var location: CLLocation!
     private var friendList = [String:String]()
-    private var inCircleUsers = [String]()
-    private var inCircleUsersWithMutuals = [String]()
+    private var inCircleUsers = [String:String]()
+    private var inCircleUsersWithMutuals = [String:Int]()
+    private var inCircleUsersWithMutualsTableName = [String]()
     
     
     // Location
@@ -144,6 +145,7 @@ class MainUser {
             let ref = FIRDatabase.database().reference(withPath: "Users/Location/\(countryCode!)/\(city!)/\(uid)")
             ref.child("Lat").setValue(location.coordinate.latitude)
             ref.child("Long").setValue(location.coordinate.longitude)
+            ref.child("FacebookID").setValue(facebookID)
         }
     }
     
@@ -163,17 +165,44 @@ class MainUser {
                 if (id != self.uid) {
                     let location2 = CLLocation(latitude: loc["Lat"].doubleValue, longitude: loc["Long"].doubleValue)
                     if (distanceBetweenTwoLocations(source: self.location, destination: location2) < circle) {
-                        self.inCircleUsers.append(id)
+                        self.inCircleUsers[id] = loc["FacebookID"].stringValue
                     }
                 }
             }
+            self.loadInCircleUsersWithMutuals()
         })
     }
     
     func loadInCircleUsersWithMutuals() {
+        self.inCircleUsersWithMutuals.removeAll()
         for user in inCircleUsers {
-            //1724201050939032?fields=context.fields(mutual_friends)
+            print("A0")
+            FBSDKGraphRequest(graphPath:"/\(user.value)", parameters: ["fields": "context.fields(mutual_friends)"]).start(completionHandler: { (connection, result, error) -> Void in
+                if error == nil
+                {
+                    print("A1")
+                    let json = JSON(result!)
+                    let mutuals = json["context"]["mutual_friends"]["summary"]["total_count"].intValue
+                    
+                    if mutuals > 0 {
+                        print("A2")
+                        self.inCircleUsersWithMutuals[user.key] = mutuals
+                    }
+                }
+                else
+                {
+                    print("Error Getting Friends \(error)")
+                }
+            })
         }
+    }
+    
+    func ICUWMtoTable() -> [String] {
+        self.inCircleUsersWithMutualsTableName.removeAll()
+        for user in inCircleUsersWithMutuals {
+            self.inCircleUsersWithMutualsTableName.append(user.key)
+        }
+        return self.inCircleUsersWithMutualsTableName
     }
     
     
@@ -223,10 +252,10 @@ class MainUser {
     func getFriendList() -> [String:String] {
         return friendList
     }
-    func getInCircleUsers() -> [String] {
+    func getInCircleUsers() -> [String:String] {
         return inCircleUsers
     }
-    func getInCircleUsersWithMutuals() -> [String] {
+    func getInCircleUsersWithMutuals() -> [String:Int] {
         return inCircleUsersWithMutuals
     }
     

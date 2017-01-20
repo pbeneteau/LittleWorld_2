@@ -26,6 +26,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     let pscope = PermissionScope()
     
+    var inCircleUsersWithMutualsTable = [String]()
+    
     
     @IBOutlet weak var longituteLabel: UILabel!
     @IBOutlet weak var latitudeLabel: UILabel!
@@ -53,7 +55,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         // Set connection state
         mainUser.checkConnectionState()
-    
+        
         // Get user's friends list (Facebook)
         mainUser.loadFriendList()
         
@@ -73,9 +75,9 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         mainUser.goOffline()
         try!FIRAuth.auth()?.signOut()
         FBSDKProfile.setCurrent(nil)
-
+        
         FBSDKAccessToken.setCurrent(nil)
-
+        
         transitionSegue.segue.switchToLoginview()
     }
     
@@ -89,13 +91,19 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return inCircleUsersWithMutualsTable.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: UITableViewCell = self.nearUsersTableView.dequeueReusableCell(withIdentifier: "cell")! as UITableViewCell
+        let uid = inCircleUsersWithMutualsTable[indexPath.row]
+        let usersRef = FIRDatabase.database().reference().child("Users/Infos/\(uid)")
         
-        // (cell.viewWithTag(4) as! UILabel).text = (self.inCircleUsersTable[indexPath.row].user as User).name
+        usersRef.observeSingleEvent(of: .value, with: { (snapshot) -> Void in
+            let name = JSON(snapshot.value!)["Name"].stringValue
+            (cell.viewWithTag(4) as! UILabel).text = ("\(name) : \(self.mainUser.getInCircleUsersWithMutuals()[uid])")
+        })
+        
         
         return cell
     }
@@ -119,9 +127,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func updateNearbyUsers() {
-        // Get nearby users every 4s
+        // Get nearby users every 1s
         mainUser.loadInCircleUsers(circle: 20)
-        print(mainUser.getInCircleUsers())
+        inCircleUsersWithMutualsTable = mainUser.ICUWMtoTable()
+        nearUsersTableView.reloadData()
     }
     
     func initLocation() -> Void {
